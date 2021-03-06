@@ -1,17 +1,35 @@
 const start = document.querySelector('#start');
 const game = document.querySelector('#game');
-const app = document.querySelector('.app')
+const app = document.querySelector('.app');
+const resultHeader = document.querySelector('#result-header');
 
 const time = document.querySelector('#time');
 const gameTime = document.querySelector('#game-time');
+const result = document.querySelector('#result');
 
 let score = 0;
+let gameOver = false;
+
 time.textContent = gameTime.value;
 
-const hideElement = (elem) => {
-    elem.style.display = 'none';
+const startGame = () => {
+    gameOver = false;
+    resultHeader.classList.add('hide');
+    result.textContent = 0;
+    score = 0;
+    start.style.display = 'none';
     game.style.backgroundColor = 'white';
     app.style.backgroundColor = 'gray';
+    gameTime.setAttribute('disabled', 'true');
+}
+
+const prepareNewGame = () => {
+    start.style.display = 'block';
+    game.style.backgroundColor = 'gray';
+    app.style.backgroundColor = 'white';
+    time.textContent = gameTime.value;
+    game.innerHTML = '';
+    gameTime.removeAttribute('disabled');
 }
 
 const randomSize = (min, max) => {
@@ -50,25 +68,38 @@ const showFigure = () => {
     game.insertAdjacentElement('afterbegin', figure);
 }
 
+
+const finishGame = () => {
+    time.textContent = 0;
+    gameOver = true;
+    resultHeader.classList.remove('hide');
+    result.textContent = score;
+}
+
+gameTime.addEventListener('input', () => time.textContent = gameTime.value)
+
 game.addEventListener('click', (evt) => {
     if (evt.target.classList.contains('click-it')) {
-        showFigure();
-        score++;
+        if (!gameOver) {
+            score++;
+            showFigure();
+        }
     }
 })
 
 start.addEventListener('click', () => {
-    hideElement(start);
+    startGame();
     const interval = setInterval(() => {
         let nextTime = (parseFloat(time.textContent) - 0.1).toFixed(1);
         if (nextTime > 0) {
             time.textContent = nextTime;
         } else {
-            time.textContent = 0;
             clearInterval(interval);
+            finishGame();
+            prepareNewGame()
         }
-        console.log(time.textContent);
     }, 100);
     showFigure();
 });
+
 
